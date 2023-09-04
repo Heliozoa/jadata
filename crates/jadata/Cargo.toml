@@ -1,0 +1,13 @@
+[package]
+name = "jadata"
+version = "0.1.0"
+authors = ["Heliozoa <daniel.x.martinez@helsinki.fi>"]
+edition = "2021"
+rust-version = "1.56"
+description = "Data types for jadata's wordfile and kanjifile."
+readme = "../README.md"
+repository = "https://github.com/Heliozoa/jadata"
+license = "MPL-2.0"
+
+[dependencies]
+serde = { version = "1.0.149", features = ["derive"] }
