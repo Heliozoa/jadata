@@ -5,6 +5,7 @@ use crate::input::{
 use jadata::kanjifile::{Kanji, Kanjifile, Position, Reading, ReadingKind};
 use std::collections::{HashMap, HashSet};
 
+/// Fills the kanjifile skeleton with data.
 pub fn fill_skeleton(skeleton: &mut Kanjifile, kd2: Kanjidic2, kf: Kradfile) {
     let mut skeleton_map = skeleton
         .kanji

@@ -1,7 +1,7 @@
 {
   "header": {
-    "version": "1",
-    "kanjidic2_version": ""
+    "version": "",
+    "kanjidic2_version": "4"
   },
   "kanji": [
     {
@@ -16766,8 +16766,7 @@
     },
     {
       "id": 4191,
-      "kanji": "普",
-      "name": "universal"
+      "kanji": "普"
     },
     {
       "id": 4192,
@@ -26683,8 +26682,7 @@
     },
     {
       "id": 6670,
-      "kanji": "癪",
-      "name": "spasms"
+      "kanji": "癪"
     },
     {
       "id": 6671,
@@ -38656,8 +38654,7 @@
     },
     {
       "id": 9663,
-      "kanji": "親",
-      "name": "parent"
+      "kanji": "親"
     },
     {
       "id": 9664,
@@ -41989,8 +41986,7 @@
     },
     {
       "id": 10496,
-      "kanji": "込",
-      "name": "crowded"
+      "kanji": "込"
     },
     {
       "id": 10497,
@@ -52441,16 +52437,12 @@
       "kanji": "𪚲"
     },
     {
-      "id": 13108,
+      "id": 13109,
       "kanji": "够"
     },
     {
-      "id": 13109,
-      "kanji": "仝"
-    },
-    {
       "id": 13110,
-      "kanji": "內"
+      "kanji": "仝"
     },
     {
       "id": 13111,
@@ -52462,46 +52454,50 @@
     },
     {
       "id": 13113,
-      "kanji": "卄"
+      "kanji": "內"
     },
     {
       "id": 13114,
-      "kanji": "卐"
+      "kanji": "卄"
     },
     {
       "id": 13115,
-      "kanji": "悅"
+      "kanji": "卐"
     },
     {
       "id": 13116,
-      "kanji": "昻"
+      "kanji": "悅"
     },
     {
       "id": 13117,
-      "kanji": "畵"
+      "kanji": "昻"
     },
     {
       "id": 13118,
-      "kanji": "椂"
+      "kanji": "畵"
     },
     {
       "id": 13119,
-      "kanji": "欙"
+      "kanji": "椂"
     },
     {
       "id": 13120,
-      "kanji": "疍"
+      "kanji": "欙"
     },
     {
       "id": 13121,
-      "kanji": "皂"
+      "kanji": "疍"
     },
     {
       "id": 13122,
-      "kanji": "皻"
+      "kanji": "皂"
     },
     {
       "id": 13123,
+      "kanji": "皻"
+    },
+    {
+      "id": 13124,
       "kanji": "髙"
     }
   ]

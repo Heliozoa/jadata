@@ -4,7 +4,7 @@ mod cli;
 mod input;
 mod output;
 
-use self::input::{jmdict::JMDict, jmdict_furigana, kanjidic2::Kanjidic2, kradfile::Kradfile};
+use self::input::{jmdict::JMdict, jmdict_furigana, kanjidic2::Kanjidic2, kradfile::Kradfile};
 use crate::output::{kanjifile, kanjifile_skeleton, wordfile, wordfile_skeleton};
 use clap::Parser;
 use cli::{Cli, Command, Format};
@@ -101,7 +101,7 @@ fn create_wordfile(
     let version = parse_jmdict_version(&jmdict)?;
 
     tracing::info!("deserializing");
-    let jmdict = JMDict::deserialize(jmdict)?;
+    let jmdict = JMdict::deserialize(jmdict)?;
     let furigana: Vec<jmdict_furigana::Furigana> =
         serde_json::from_reader(BufReader::new(furigana))?;
     let mut wfs: Wordfile = serde_json::from_reader(BufReader::new(wfs))?;
@@ -148,7 +148,7 @@ fn create_wordfile_skeleton(jmdict: &Path, output: &Path) -> eyre::Result<()> {
     let version = parse_jmdict_version(&jmdict)?;
 
     tracing::info!("deserializing");
-    let jmdict = JMDict::deserialize(BufReader::new(jmdict))?;
+    let jmdict = JMdict::deserialize(BufReader::new(jmdict))?;
 
     tracing::info!("producing wordfile");
     let skeleton = wordfile_skeleton::create(jmdict, version)?;

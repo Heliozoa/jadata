@@ -1,14 +1,15 @@
 use crate::input::{
-    jmdict::{JMDict, REle, Sense},
+    jmdict::{JMdict, REle, Sense},
     jmdict_furigana,
 };
 use eyre::Context;
 use jadata::wordfile::{Furigana, Reading, Word, Wordfile};
 use std::collections::HashMap;
 
+/// Fills the wordfile skeleton with data.
 pub fn fill_skeleton(
     skeleton: &mut Wordfile,
-    jmdict: JMDict,
+    jmdict: JMdict,
     jmdict_version: String,
     furigana: Vec<jmdict_furigana::Furigana>,
 ) -> eyre::Result<()> {
@@ -67,9 +68,9 @@ fn process_furigana(
 }
 
 fn process_jmdict(
-    jmdict: JMDict,
+    jmdict: JMdict,
     furigana: &HashMap<(String, String), Vec<Furigana>>,
-) -> eyre::Result<Vec<JmdictWord>> {
+) -> eyre::Result<Vec<JMdictWord>> {
     let mut tuples = vec![];
     for entry in jmdict.entry {
         let jmdict_id = entry.ent_seq.parse().wrap_err("invalid id")?;
@@ -113,7 +114,7 @@ fn process_jmdict_word(
     keb: Option<String>,
     rele: &REle,
     rare_written_form: bool,
-) -> JmdictWord {
+) -> JMdictWord {
     let reb = rele.reb.clone();
     let keb = keb.unwrap_or_else(|| reb.clone());
     let tuple = (keb.clone(), reb.clone());
@@ -141,7 +142,7 @@ fn process_jmdict_word(
             }
         }
     }
-    JmdictWord {
+    JMdictWord {
         jmdict_id,
         written_form: keb.clone(),
         reading: if keb == reb { None } else { Some(reb) },
@@ -152,7 +153,7 @@ fn process_jmdict_word(
 }
 
 #[derive(Debug)]
-struct JmdictWord {
+struct JMdictWord {
     jmdict_id: u32,
     written_form: String,
     reading: Option<String>,

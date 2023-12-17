@@ -1,6 +1,7 @@
 use crate::input::kanjidic2::Kanjidic2;
 use jadata::kanjifile::{Header, Kanji, Kanjifile};
 
+/// Creates the skeleton for a kanjifile that only contains the bare minimum information for each kanji.
 pub fn create(mut kd2: Kanjidic2) -> eyre::Result<Kanjifile> {
     kd2.character.sort_by(|a, b| a.literal.cmp(&b.literal));
     let kanji = kd2

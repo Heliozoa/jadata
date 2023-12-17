@@ -1,11 +1,12 @@
-use crate::input::jmdict::{JMDict, Sense};
+use crate::input::jmdict::{JMdict, Sense};
 use jadata::wordfile::{Header, Word, Wordfile};
 use std::collections::{HashMap, HashSet};
 use wana_kana::ConvertJapanese;
 
-pub fn create(jmdict: JMDict, jmdict_version: String) -> eyre::Result<Wordfile> {
+/// Creates the kanjifile skeleton that only contains the bare minimum amount of data.
+pub fn create(jmdict: JMdict, jmdict_version: String) -> eyre::Result<Wordfile> {
     let jmdict_words = process_jmdict(jmdict);
-    let mut jadata_word_to_jmdict_words: HashMap<JadataWord, Vec<JmdictWord>> = HashMap::new();
+    let mut jadata_word_to_jmdict_words: HashMap<JadataWord, Vec<JMdictWord>> = HashMap::new();
     for jmdict_word in jmdict_words {
         let jadata_word = JadataWord::from_jmdict_word(&jmdict_word);
         let entry = jadata_word_to_jmdict_words.entry(jadata_word).or_default();
@@ -40,7 +41,7 @@ pub fn create(jmdict: JMDict, jmdict_version: String) -> eyre::Result<Wordfile> 
 
     let skeleton = Wordfile {
         header: Header {
-            version: "1".to_string(),
+            version: "".to_string(),
             jmdict_version,
         },
         words,
@@ -49,7 +50,7 @@ pub fn create(jmdict: JMDict, jmdict_version: String) -> eyre::Result<Wordfile> 
 }
 
 #[derive(Debug)]
-struct JmdictWord {
+struct JMdictWord {
     id: u32,
     written_form: String,
 }
@@ -62,7 +63,7 @@ struct JadataWord {
 }
 
 impl JadataWord {
-    fn from_jmdict_word(tuple: &JmdictWord) -> Self {
+    fn from_jmdict_word(tuple: &JMdictWord) -> Self {
         let written_form_katakana = tuple.written_form.to_katakana();
         Self {
             jmdict_id: tuple.id,
@@ -72,7 +73,7 @@ impl JadataWord {
 }
 
 // turn jmdict entries into tuples of id, written form, reading and meanings
-fn process_jmdict(jmdict: JMDict) -> Vec<JmdictWord> {
+fn process_jmdict(jmdict: JMdict) -> Vec<JMdictWord> {
     let mut jmdict_words = vec![];
     for entry in jmdict.entry {
         let id = entry.ent_seq.parse().unwrap();
@@ -104,7 +105,7 @@ fn process_jmdict(jmdict: JMDict) -> Vec<JmdictWord> {
     jmdict_words
 }
 
-fn process_entry(id: u32, sense: &[Sense], keb: Option<String>, reb: String) -> JmdictWord {
+fn process_entry(id: u32, sense: &[Sense], keb: Option<String>, reb: String) -> JMdictWord {
     let keb = keb.unwrap_or_else(|| reb.clone());
     let mut meanings = vec![];
     for s in sense {
@@ -122,7 +123,7 @@ fn process_entry(id: u32, sense: &[Sense], keb: Option<String>, reb: String) -> 
             }
         }
     }
-    JmdictWord {
+    JMdictWord {
         id,
         written_form: keb,
     }

@@ -7,12 +7,12 @@ use std::io::Read;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct JMDict {
+pub struct JMdict {
     #[serde(default)]
     pub entry: Vec<Entry>,
 }
 
-impl JMDict {
+impl JMdict {
     pub fn deserialize<R>(r: R) -> Result<Self, serde_xml_rs::Error>
     where
         R: Read,
