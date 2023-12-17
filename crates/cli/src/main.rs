@@ -39,11 +39,27 @@ fn main() -> eyre::Result<()> {
         } => {
             create_wordfile(&jmdict, &furigana, &skeleton, &output, format)?;
         }
-        Command::KanjifileSkeleton { kanjidic, output } => {
-            create_kanjifile_skeleton(&kanjidic, &output)?;
+        Command::KanjifileSkeleton {
+            clean,
+            kanjidic,
+            output,
+        } => {
+            if !clean {
+                todo!("updating not implemented yet")
+            } else {
+                create_kanjifile_skeleton(&kanjidic, &output)?;
+            }
         }
-        Command::WordfileSkeleton { jmdict, output } => {
-            create_wordfile_skeleton(&jmdict, &output)?;
+        Command::WordfileSkeleton {
+            clean,
+            jmdict,
+            output,
+        } => {
+            if !clean {
+                todo!("updating not implemented yet")
+            } else {
+                create_wordfile_skeleton(&jmdict, &output)?;
+            }
         }
     }
 

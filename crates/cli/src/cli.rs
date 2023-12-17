@@ -48,6 +48,9 @@ pub enum Command {
     },
     /// Generates the kanjifile skeleton.
     KanjifileSkeleton {
+        /// If set, will generate a fresh skeleton instead of updating an existing one.
+        #[arg(short, long, default_value_t = true)]
+        clean: bool,
         /// The path to the input KANJIDIC2 file,
         #[arg(short = 'd', long)]
         kanjidic: PathBuf,
@@ -57,6 +60,9 @@ pub enum Command {
     },
     /// Generates the wordfile skeleton.
     WordfileSkeleton {
+        /// If set, will generate a fresh skeleton instead of updating an existing one.
+        #[arg(short, long, default_value_t = true)]
+        clean: bool,
         /// The path to the input JMDICT file.
         #[arg(short, long)]
         jmdict: PathBuf,
