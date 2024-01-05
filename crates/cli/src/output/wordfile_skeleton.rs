@@ -76,7 +76,10 @@ impl JadataWord {
 fn process_jmdict(jmdict: JMdict) -> Vec<JMdictWord> {
     let mut jmdict_words = vec![];
     for entry in jmdict.entry {
-        let id = entry.ent_seq.parse().unwrap();
+        let ent_seq = entry.ent_seq;
+        let id = ent_seq
+            .parse()
+            .unwrap_or_else(|_| panic!("invalid ent_seq {ent_seq}"));
         if entry.k_ele.is_empty() {
             for rele in &entry.r_ele {
                 jmdict_words.push(process_entry(id, &entry.sense, None, rele.reb.clone()));

@@ -21,7 +21,10 @@ pub fn fill_skeleton(
     }
     let jmdict_words = process_jmdict(jmdict, &furigana)?;
     for jmdict_word in jmdict_words {
-        let words = skeleton_map.get_mut(&jmdict_word.jmdict_id).unwrap();
+        let jmdict_id = jmdict_word.jmdict_id;
+        let words = skeleton_map
+            .get_mut(&jmdict_id)
+            .unwrap_or_else(|| panic!("missing jmdict_id {jmdict_id}"));
         for word in words {
             if !word.written_forms.contains(&jmdict_word.written_form) {
                 continue;
