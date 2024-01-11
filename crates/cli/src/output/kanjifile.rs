@@ -2,7 +2,7 @@ use crate::input::{
     kanjidic2::{self, Character, Kanjidic2},
     kradfile::Kradfile,
 };
-use jadata::kanjifile::{Kanji, Kanjifile, Position, Reading, ReadingKind};
+use jadata::kanjifile::{Kanji, Kanjifile};
 use std::collections::{HashMap, HashSet};
 
 /// Fills the kanjifile skeleton with data.
@@ -41,20 +41,16 @@ fn fill_in_kanji(
     kanji_to_components: &HashMap<String, Vec<String>>,
 ) {
     let mut meanings = vec![];
-    let mut readings = vec![];
     for rmg in kanji.reading_meaning.into_iter().flat_map(|rm| rm.rmgroup) {
         meanings.extend(handle_meanings(rmg.meaning));
-        readings.extend(handle_readings(rmg.reading));
     }
     meanings.sort();
-    readings.sort_by(|l, r| l.reading.cmp(&r.reading));
 
     skeleton.name = skeleton.name.take().or_else(|| meanings.first().cloned());
     skeleton.components = kanji_to_components
         .get(&kanji.literal)
         .cloned()
         .unwrap_or_default();
-    skeleton.readings = readings;
     skeleton.meanings = meanings;
 }
 
@@ -63,35 +59,4 @@ fn handle_meanings(meanings: Vec<kanjidic2::Meaning>) -> impl Iterator<Item = St
         .into_iter()
         .filter(|m| m.m_lang.is_none())
         .map(|m| m.value)
-}
-
-fn handle_readings(readings: Vec<kanjidic2::Reading>) -> impl Iterator<Item = Reading> {
-    readings.into_iter().filter_map(|r| {
-        let kind = match r.r_type.as_str() {
-            "ja_on" => ReadingKind::Onyomi,
-            "ja_kun" => ReadingKind::Kunyomi,
-            _ => return None,
-        };
-        let position = if r.value.starts_with('-') {
-            Some(Position::Suffix)
-        } else if r.value.ends_with('-') {
-            Some(Position::Prefix)
-        } else {
-            None
-        };
-        let (reading, okurigana) = if let Some((reading, okurigana)) = r.value.split_once('.') {
-            (
-                reading.trim_matches('-').to_string(),
-                Some(okurigana.trim_matches('-').to_string()),
-            )
-        } else {
-            (r.value.trim_matches('-').to_string(), None)
-        };
-        Some(Reading {
-            kind,
-            reading,
-            okurigana,
-            position,
-        })
-    })
 }

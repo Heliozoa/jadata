@@ -23,7 +23,7 @@ impl Kradfile {
         let mut replacement_map = HashMap::new();
         replacement_map.insert("化", "\u{2E85}");
         replacement_map.insert("个", "\u{2F09}");
-        replacement_map.insert("并", "upside-down ハ");
+        replacement_map.insert("并", "upside-down ハ"); // this component does not have have a corresponding Unicode character
         replacement_map.insert("刈", "\u{2E89}");
         replacement_map.insert("込", "\u{2ECC}");
         replacement_map.insert("尚", "\u{2E8C}");

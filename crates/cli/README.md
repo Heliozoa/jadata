@@ -1,3 +1,3 @@
 # `jadata-cli`
 
-Derives the `kanjifile.json` and `wordfile.json` files.
+Derives the kanjifile and wordfile files.

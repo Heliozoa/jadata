@@ -1,4 +1,4 @@
-//! Creates the `kanjifile.json` and `wordfile.json` files.
+//! Creates the kanjifile and wordfile files.
 
 mod cli;
 mod input;

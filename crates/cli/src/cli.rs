@@ -49,7 +49,7 @@ pub enum Command {
     /// Generates the kanjifile skeleton.
     KanjifileSkeleton {
         /// If set, will generate a fresh skeleton instead of updating an existing one.
-        #[arg(short, long, default_value_t = true)]
+        #[arg(short, long, default_value_t = false)]
         clean: bool,
         /// The path to the input KANJIDIC2 file,
         #[arg(short = 'd', long)]
@@ -61,7 +61,7 @@ pub enum Command {
     /// Generates the wordfile skeleton.
     WordfileSkeleton {
         /// If set, will generate a fresh skeleton instead of updating an existing one.
-        #[arg(short, long, default_value_t = true)]
+        #[arg(short, long, default_value_t = false)]
         clean: bool,
         /// The path to the input JMDICT file.
         #[arg(short, long)]
@@ -72,8 +72,11 @@ pub enum Command {
     },
 }
 
+/// Alternative formats for the resulting file.
 #[derive(Clone, Copy, ValueEnum)]
 pub enum Format {
+    /// A verbose human-readable and -writable format.
     Json,
+    /// A concise binary format. See https://crates.io/crates/postcard.
     Postcard,
 }

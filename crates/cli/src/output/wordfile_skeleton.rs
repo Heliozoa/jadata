@@ -5,6 +5,18 @@ use wana_kana::ConvertJapanese;
 
 /// Creates the kanjifile skeleton that only contains the bare minimum amount of data.
 pub fn create(jmdict: JMdict, jmdict_version: String) -> eyre::Result<Wordfile> {
+    let mut skeleton = Wordfile {
+        header: Header {
+            version: "".to_string(),
+            jmdict_version: "".to_string(),
+        },
+        words: Vec::new(),
+    };
+    update(&mut skeleton, jmdict, jmdict_version)?;
+    Ok(skeleton)
+}
+
+pub fn update(wordfile: &mut Wordfile, jmdict: JMdict, jmdict_version: String) -> eyre::Result<()> {
     let jmdict_words = process_jmdict(jmdict);
     let mut jadata_word_to_jmdict_words: HashMap<JadataWord, Vec<JMdictWord>> = HashMap::new();
     for jmdict_word in jmdict_words {
@@ -19,19 +31,20 @@ pub fn create(jmdict: JMdict, jmdict_version: String) -> eyre::Result<Wordfile> 
             .then(a.0.jmdict_id.cmp(&b.0.jmdict_id))
     });
 
+    let mut last_word_id = wordfile.words.iter().map(|w| w.id).max().unwrap_or(0);
     let words = pairs
         .into_iter()
-        .enumerate()
-        .map(|(i, (ja, jm))| {
+        .map(|(ja, jm)| {
             let mut written_forms = HashSet::new();
             for jm in jm {
                 written_forms.insert(jm.written_form.clone());
             }
             let mut written_forms = written_forms.into_iter().collect::<Vec<_>>();
             written_forms.sort();
+            last_word_id += 1;
             Word {
-                id: i as u32 + 1,
-                jmdict_id: ja.jmdict_id,
+                id: last_word_id,
+                jmdict_id: Some(ja.jmdict_id),
                 written_forms,
                 meanings: vec![],
                 readings: vec![],
@@ -39,14 +52,10 @@ pub fn create(jmdict: JMdict, jmdict_version: String) -> eyre::Result<Wordfile> 
         })
         .collect::<Vec<_>>();
 
-    let skeleton = Wordfile {
-        header: Header {
-            version: "".to_string(),
-            jmdict_version,
-        },
-        words,
-    };
-    Ok(skeleton)
+    wordfile.header.jmdict_version = jmdict_version;
+    wordfile.words = words;
+
+    Ok(())
 }
 
 #[derive(Debug)]

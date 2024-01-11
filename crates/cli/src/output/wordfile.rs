@@ -16,8 +16,10 @@ pub fn fill_skeleton(
     let furigana = process_furigana(furigana);
     let mut skeleton_map: HashMap<u32, Vec<&mut Word>> = HashMap::new();
     for word in skeleton.words.iter_mut() {
-        let entry = skeleton_map.entry(word.jmdict_id).or_default();
-        entry.push(word);
+        if let Some(jmdict_id) = word.jmdict_id {
+            let entry = skeleton_map.entry(jmdict_id).or_default();
+            entry.push(word);
+        }
     }
     let jmdict_words = process_jmdict(jmdict, &furigana)?;
     for jmdict_word in jmdict_words {
