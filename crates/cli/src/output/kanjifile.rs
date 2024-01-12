@@ -6,7 +6,7 @@ use jadata::kanjifile::{Kanji, Kanjifile};
 use std::collections::{HashMap, HashSet};
 
 /// Fills the kanjifile skeleton with data.
-pub fn fill_skeleton(skeleton: &mut Kanjifile, kd2: Kanjidic2, kf: Kradfile) {
+pub fn fill_skeleton(skeleton: &mut Kanjifile, version: String, kd2: Kanjidic2, kf: Kradfile) {
     let mut skeleton_map = skeleton
         .kanji
         .iter_mut()
@@ -32,6 +32,7 @@ pub fn fill_skeleton(skeleton: &mut Kanjifile, kd2: Kanjidic2, kf: Kradfile) {
         }
         fill_in_kanji(kanji, kanji_skeleton, &kf.kanji_to_components);
     }
+    skeleton.header.version = version;
     skeleton.header.kanjidic2_version = kd2.header.file_version;
 }
 

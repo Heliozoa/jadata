@@ -12,6 +12,9 @@ pub struct Cli {
 pub enum Command {
     /// Generates the kanjifile.
     Kanjifile {
+        /// The version of the generated kanjifile.
+        #[arg(short, long)]
+        version: String,
         /// The path to the input KANJIDIC2 file,
         #[arg(short = 'd', long)]
         kanjidic: PathBuf,
@@ -30,6 +33,9 @@ pub enum Command {
     },
     /// Generates the wordfile.
     Wordfile {
+        /// The version of the generated wordfile.
+        #[arg(short, long)]
+        version: String,
         /// The path to the input JMdict file.
         #[arg(short, long)]
         jmdict: PathBuf,

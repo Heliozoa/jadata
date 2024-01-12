@@ -9,22 +9,26 @@ fn main() -> eyre::Result<()> {
 
     match cli.command {
         Command::Kanjifile {
+            version,
             kanjidic,
             kradfile,
             skeleton,
             output,
             format,
         } => {
-            jadata_cli::create_kanjifile(&kanjidic, &kradfile, &skeleton, &output, format)?;
+            jadata_cli::create_kanjifile(
+                version, &kanjidic, &kradfile, &skeleton, &output, format,
+            )?;
         }
         Command::Wordfile {
+            version,
             jmdict,
             furigana,
             skeleton,
             output,
             format,
         } => {
-            jadata_cli::create_wordfile(&jmdict, &furigana, &skeleton, &output, format)?;
+            jadata_cli::create_wordfile(version, &jmdict, &furigana, &skeleton, &output, format)?;
         }
         Command::KanjifileSkeleton {
             clean,

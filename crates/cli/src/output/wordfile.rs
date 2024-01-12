@@ -9,6 +9,7 @@ use std::collections::HashMap;
 /// Fills the wordfile skeleton with data.
 pub fn fill_skeleton(
     skeleton: &mut Wordfile,
+    version: String,
     jmdict: JMdict,
     jmdict_version: String,
     furigana: Vec<jmdict_furigana::Furigana>,
@@ -41,7 +42,7 @@ pub fn fill_skeleton(
             }
         }
     }
-
+    skeleton.header.version = version;
     skeleton.header.jmdict_version = jmdict_version;
     Ok(())
 }

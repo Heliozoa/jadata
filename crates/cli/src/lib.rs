@@ -18,6 +18,7 @@ use std::{
 // todo: share code between create/update
 
 pub fn create_kanjifile(
+    version: String,
     kanjidic: &Path,
     kradfile: &Path,
     skeleton: &Path,
@@ -35,7 +36,7 @@ pub fn create_kanjifile(
     let mut kfs: Kanjifile = serde_json::from_reader(BufReader::new(kfs))?;
 
     tracing::info!("producing kanjifile");
-    kanjifile::fill_skeleton(&mut kfs, kd2, kf);
+    kanjifile::fill_skeleton(&mut kfs, version, kd2, kf);
 
     tracing::info!("writing output");
     let kf = File::create(output)?;
@@ -53,6 +54,7 @@ pub fn create_kanjifile(
 }
 
 pub fn create_wordfile(
+    version: String,
     jmdict: &Path,
     jmdict_furigana: &Path,
     skeleton: &Path,
@@ -65,7 +67,7 @@ pub fn create_wordfile(
     let wfs = open(skeleton)?;
 
     tracing::info!("parsing jmdict version");
-    let version = parse_jmdict_version(&jmdict)?;
+    let jmdict_version = parse_jmdict_version(&jmdict)?;
 
     tracing::info!("deserializing");
     let jmdict = JMdict::deserialize(jmdict)?;
@@ -74,7 +76,7 @@ pub fn create_wordfile(
     let mut wfs: Wordfile = serde_json::from_reader(BufReader::new(wfs))?;
 
     tracing::info!("producing wordfile");
-    wordfile::fill_skeleton(&mut wfs, jmdict, version, furigana)?;
+    wordfile::fill_skeleton(&mut wfs, version, jmdict, jmdict_version, furigana)?;
 
     tracing::info!("writing output");
     let wf = File::create(output)?;
