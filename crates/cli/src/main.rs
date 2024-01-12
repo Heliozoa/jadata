@@ -29,12 +29,13 @@ fn main() -> eyre::Result<()> {
         Command::KanjifileSkeleton {
             clean,
             kanjidic,
+            jmdict,
             output,
         } => {
             if !clean {
-                jadata_cli::update_kanjifile_skeleton(&kanjidic, &output)?;
+                jadata_cli::update_kanjifile_skeleton(&kanjidic, &jmdict, &output)?;
             } else {
-                jadata_cli::create_kanjifile_skeleton(&kanjidic, &output)?;
+                jadata_cli::create_kanjifile_skeleton(&kanjidic, &jmdict, &output)?;
             }
         }
         Command::WordfileSkeleton {

@@ -16,6 +16,8 @@ pub struct Header {
     pub version: String,
     /// The version of the JMdict that was used as the base for the wordfile.
     pub jmdict_version: String,
+    /// The last word id. Used to prevent index reuse if words get removed and added.
+    pub last_word_id: u32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -25,6 +27,9 @@ pub struct Word {
     /// The identifier (`seq`) for the corresponding word within JMdict, if any.
     pub jmdict_id: Option<u32>,
     /// Different written forms for the same word.
+    /// The written forms of a single jadata word are all equivalent when converted to katakana.
+    /// In other words, though you could consider the words 船 and 舟 to be the same word (as in JMdict),
+    /// jadata considers them different words.
     pub written_forms: Vec<String>,
     /// English translations for the different meanings of the word.
     #[serde(default)]

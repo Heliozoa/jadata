@@ -9,6 +9,7 @@ pub fn create(jmdict: JMdict, jmdict_version: String) -> eyre::Result<Wordfile> 
         header: Header {
             version: "".to_string(),
             jmdict_version: "".to_string(),
+            last_word_id: 0,
         },
         words: Vec::new(),
     };
@@ -17,22 +18,60 @@ pub fn create(jmdict: JMdict, jmdict_version: String) -> eyre::Result<Wordfile> 
 }
 
 pub fn update(wordfile: &mut Wordfile, jmdict: JMdict, jmdict_version: String) -> eyre::Result<()> {
+    // a jmdict entry can correspond to multiple jadata entries
+    // a jmdict id + a written form converted to katakana corresponds to a single jadata entry
+    let existing_words = std::mem::take(&mut wordfile.words);
+    let mut existing_words = existing_words
+        .iter()
+        .flat_map(|w| {
+            // no need to update words that aren't in JMdict
+            let jmdict_id = if let Some(jmdict_id) = w.jmdict_id {
+                jmdict_id
+            } else {
+                return None;
+            };
+            let key = JMdictWordKatakana {
+                jmdict_id,
+                // all written forms in a single jadata entry are equivalent when converted to katakana, so we can just pick one
+                written_form_katakana: w.written_forms[0].to_katakana(),
+            };
+            let val = w;
+            Some((key, val))
+        })
+        .collect::<HashMap<_, _>>();
+
     let jmdict_words = process_jmdict(jmdict);
-    let mut jadata_word_to_jmdict_words: HashMap<JadataWord, Vec<JMdictWord>> = HashMap::new();
+    let mut katana_to_verbatim: HashMap<JMdictWordKatakana, Vec<JMdictWordVerbatim>> =
+        HashMap::new();
     for jmdict_word in jmdict_words {
-        let jadata_word = JadataWord::from_jmdict_word(&jmdict_word);
-        let entry = jadata_word_to_jmdict_words.entry(jadata_word).or_default();
+        let jadata_word = JMdictWordKatakana::from_verbatim(&jmdict_word);
+        let entry = katana_to_verbatim.entry(jadata_word).or_default();
         entry.push(jmdict_word);
     }
-    let mut pairs = jadata_word_to_jmdict_words.into_iter().collect::<Vec<_>>();
+
+    // here, we remove words that no longer exist
+    // while JMdict entries should not disappear, a word may possibly have a written form changed/removed
+    // we could leave them in, but we're treating JMdict as the authority here
+    let existing_words_keys = existing_words.keys().cloned().collect::<HashSet<_>>();
+    let jmdict_words_keys = katana_to_verbatim.keys().cloned().collect::<HashSet<_>>();
+    // removed words are ones that exist in the skeleton currently but no longer found in JMdict
+    let removed_words_keys = existing_words_keys.difference(&jmdict_words_keys);
+    for removed_word_key in removed_words_keys {
+        let removed = existing_words.remove(removed_word_key).unwrap();
+        tracing::warn!("removing word {removed:#?}");
+    }
+
+    // then, we add in the new words
+    // new words are ones that exist in JMdict but not in the skeleton
+    katana_to_verbatim.retain(|k, _v| !existing_words_keys.contains(k));
+    let mut pairs = katana_to_verbatim.into_iter().collect::<Vec<_>>();
     pairs.sort_by(|a, b| {
         a.0.written_form_katakana
             .cmp(&b.0.written_form_katakana)
             .then(a.0.jmdict_id.cmp(&b.0.jmdict_id))
     });
-
-    let mut last_word_id = wordfile.words.iter().map(|w| w.id).max().unwrap_or(0);
-    let words = pairs
+    let last_word_id = &mut wordfile.header.last_word_id;
+    let new_words = pairs
         .into_iter()
         .map(|(ja, jm)| {
             let mut written_forms = HashSet::new();
@@ -41,9 +80,9 @@ pub fn update(wordfile: &mut Wordfile, jmdict: JMdict, jmdict_version: String) -
             }
             let mut written_forms = written_forms.into_iter().collect::<Vec<_>>();
             written_forms.sort();
-            last_word_id += 1;
+            *last_word_id += 1;
             Word {
-                id: last_word_id,
+                id: *last_word_id,
                 jmdict_id: Some(ja.jmdict_id),
                 written_forms,
                 meanings: vec![],
@@ -53,36 +92,36 @@ pub fn update(wordfile: &mut Wordfile, jmdict: JMdict, jmdict_version: String) -
         .collect::<Vec<_>>();
 
     wordfile.header.jmdict_version = jmdict_version;
-    wordfile.words = words;
+    wordfile.words.extend(new_words);
 
     Ok(())
 }
 
 #[derive(Debug)]
-struct JMdictWord {
+struct JMdictWordVerbatim {
     id: u32,
     written_form: String,
 }
 
-// uniquely identifies a jadata word
-#[derive(Debug, PartialEq, Eq, Hash)]
-struct JadataWord {
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+struct JMdictWordKatakana {
     jmdict_id: u32,
     written_form_katakana: String,
 }
 
-impl JadataWord {
-    fn from_jmdict_word(tuple: &JMdictWord) -> Self {
-        let written_form_katakana = tuple.written_form.to_katakana();
+impl JMdictWordKatakana {
+    fn from_verbatim(key: &JMdictWordVerbatim) -> Self {
+        let written_form_katakana = key.written_form.to_katakana();
         Self {
-            jmdict_id: tuple.id,
+            jmdict_id: key.id,
             written_form_katakana,
         }
     }
 }
 
-// turn jmdict entries into tuples of id, written form, reading and meanings
-fn process_jmdict(jmdict: JMdict) -> Vec<JMdictWord> {
+// turn jmdict entries into a list of entries with just the id (seq) and written form
+// since in jmdict entries can have multiple written forms, the list of entries has duplicate ids
+fn process_jmdict(jmdict: JMdict) -> Vec<JMdictWordVerbatim> {
     let mut jmdict_words = vec![];
     for entry in jmdict.entry {
         let ent_seq = entry.ent_seq;
@@ -117,7 +156,8 @@ fn process_jmdict(jmdict: JMdict) -> Vec<JMdictWord> {
     jmdict_words
 }
 
-fn process_entry(id: u32, sense: &[Sense], keb: Option<String>, reb: String) -> JMdictWord {
+// turns a jmdict entry into an entry with just the id (seq) and written form
+fn process_entry(id: u32, sense: &[Sense], keb: Option<String>, reb: String) -> JMdictWordVerbatim {
     let keb = keb.unwrap_or_else(|| reb.clone());
     let mut meanings = vec![];
     for s in sense {
@@ -135,7 +175,7 @@ fn process_entry(id: u32, sense: &[Sense], keb: Option<String>, reb: String) -> 
             }
         }
     }
-    JMdictWord {
+    JMdictWordVerbatim {
         id,
         written_form: keb,
     }

@@ -21,8 +21,11 @@ pub struct Header {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Kanji {
     /// A stable identifier for the kanji within the kanjifile.
+    // it would be nice to just use the Unicode code point itself as the id,
+    // since all kanji should be just a single codepoint, but it's probably not a big deal either way...
     pub id: u16,
     /// The kanji itself.
+    // pretty sure this could just be a char, but it doesn't really matter
     pub kanji: String,
     /// The components of the kanji.
     /// Note that these are not canonical or "official", but may be helpful nonetheless.

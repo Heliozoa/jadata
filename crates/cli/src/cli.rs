@@ -30,10 +30,10 @@ pub enum Command {
     },
     /// Generates the wordfile.
     Wordfile {
-        /// The path to the input JMDICT file.
+        /// The path to the input JMdict file.
         #[arg(short, long)]
         jmdict: PathBuf,
-        /// The path to the input JMDICT furigana file.
+        /// The path to the input JMdict furigana file.
         #[arg(short, long)]
         furigana: PathBuf,
         /// The path to the wordfile_skeleton.json file.
@@ -54,6 +54,12 @@ pub enum Command {
         /// The path to the input KANJIDIC2 file,
         #[arg(short = 'd', long)]
         kanjidic: PathBuf,
+        /// The path to the input JMdict file.
+        // JMdict contains kanji that are unfortunately not in the KANJIDIC2,
+        // so to make sure we don't miss any we go through all the written forms
+        // of the JMdict to check for missing kanji
+        #[arg(short, long)]
+        jmdict: PathBuf,
         /// The path to the output kanjifile skeleton.
         #[arg(short, long)]
         output: PathBuf,
@@ -63,7 +69,7 @@ pub enum Command {
         /// If set, will generate a fresh skeleton instead of updating an existing one.
         #[arg(short, long, default_value_t = false)]
         clean: bool,
-        /// The path to the input JMDICT file.
+        /// The path to the input JMdict file.
         #[arg(short, long)]
         jmdict: PathBuf,
         /// The path to the output wordfile skeleton.

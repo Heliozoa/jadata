@@ -18,16 +18,16 @@ use std::{
 // todo: share code between create/update
 
 pub fn create_kanjifile(
-    kanjidic_path: &Path,
-    kradfile_path: &Path,
-    skeleton_path: &Path,
-    output_path: &Path,
+    kanjidic: &Path,
+    kradfile: &Path,
+    skeleton: &Path,
+    output: &Path,
     format: Format,
 ) -> eyre::Result<()> {
     tracing::info!("opening files");
-    let kd2 = open(kanjidic_path)?;
-    let kf = open(kradfile_path)?;
-    let kfs = open(skeleton_path)?;
+    let kd2 = open(kanjidic)?;
+    let kf = open(kradfile)?;
+    let kfs = open(skeleton)?;
 
     tracing::info!("deserializing files");
     let kd2: Kanjidic2 = serde_xml_rs::from_reader(BufReader::new(kd2))?;
@@ -38,7 +38,7 @@ pub fn create_kanjifile(
     kanjifile::fill_skeleton(&mut kfs, kd2, kf);
 
     tracing::info!("writing output");
-    let kf = File::create(output_path)?;
+    let kf = File::create(output)?;
     let mut kf = BufWriter::new(kf);
     match format {
         Format::Json => {
@@ -55,14 +55,14 @@ pub fn create_kanjifile(
 pub fn create_wordfile(
     jmdict: &Path,
     jmdict_furigana: &Path,
-    skeleton_path: &Path,
+    skeleton: &Path,
     output: &Path,
     format: Format,
 ) -> eyre::Result<()> {
     tracing::info!("opening files");
     let jmdict = open(jmdict)?;
     let furigana = open(jmdict_furigana)?;
-    let wfs = open(skeleton_path)?;
+    let wfs = open(skeleton)?;
 
     tracing::info!("parsing jmdict version");
     let version = parse_jmdict_version(&jmdict)?;
@@ -91,36 +91,48 @@ pub fn create_wordfile(
     Ok(())
 }
 
-pub fn create_kanjifile_skeleton(kanjidic_path: &Path, output_path: &Path) -> eyre::Result<()> {
+pub fn create_kanjifile_skeleton(
+    kanjidic: &Path,
+    jmdict: &Path,
+    output: &Path,
+) -> eyre::Result<()> {
     tracing::info!("opening files");
-    let kd2 = open(kanjidic_path)?;
+    let kd2 = open(kanjidic)?;
+    let jmdict = open(jmdict)?;
 
     tracing::info!("deserializing files");
     let kd2: Kanjidic2 = serde_xml_rs::from_reader(BufReader::new(kd2))?;
+    let jmdict = JMdict::deserialize(jmdict)?;
 
     tracing::info!("producing kanjifile skeleton");
-    let skeleton = kanjifile_skeleton::create(kd2)?;
+    let skeleton = kanjifile_skeleton::create(kd2, jmdict)?;
 
     tracing::info!("writing output");
-    let output = File::create(output_path)?;
+    let output = File::create(output)?;
     serde_json::to_writer_pretty(BufWriter::new(output), &skeleton)?;
     Ok(())
 }
 
-pub fn update_kanjifile_skeleton(kanjidic_path: &Path, output_path: &Path) -> eyre::Result<()> {
+pub fn update_kanjifile_skeleton(
+    kanjidic: &Path,
+    jmdict: &Path,
+    output: &Path,
+) -> eyre::Result<()> {
     tracing::info!("opening files");
-    let kd2 = open(kanjidic_path)?;
-    let kf = open(output_path)?;
+    let kd2 = open(kanjidic)?;
+    let jmdict = open(jmdict)?;
+    let kf = open(output)?;
 
     tracing::info!("deserializing files");
     let kd2: Kanjidic2 = serde_xml_rs::from_reader(BufReader::new(kd2))?;
+    let jmdict = JMdict::deserialize(jmdict)?;
     let mut kf: Kanjifile = serde_json::from_reader(kf)?;
 
     tracing::info!("updating kanjifile skeleton");
-    kanjifile_skeleton::update(&mut kf, kd2)?;
+    kanjifile_skeleton::update(&mut kf, kd2, jmdict)?;
 
     tracing::info!("writing output");
-    let output = File::create(output_path)?;
+    let output = File::create(output)?;
     serde_json::to_writer_pretty(BufWriter::new(output), &kf)?;
     Ok(())
 }

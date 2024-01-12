@@ -14,6 +14,12 @@ Both files are derived from "skeleton" files that contain stable ids mapped to e
 The core concept is that the kanjifile and wordfile can easily be updated both from new versions of KANJIDIC2 and JMdict, as well as with manual updates for the needs of `jadata` such as kanji names and the list of similar kanji by updating the skeleton. This way it's not necessary to store the large, complete files in version control.
 
 
+## Differences from JMdict
+jadata's definition of a "word" is a little different from JMdict's. Essentially, jadata prioritises the "written form" of the word in order to make things easier for a Japanese learner, whereas JMdict prioritises the "meaning" of the word as a dictionary would.
+
+For example, in jadata 船 and 舟 are two different words, both meaning ship and both read ふね, whereas in JMdict they are both grouped as two different ways to write the same word. When learning Japanese, you would have to learn each written form separately, and so jadata considers them their own individual words.
+
+
 ## Crates
 ### jadata_cli
 A binary crate that implements functionality for generating and updating the `kanjifile.json` and `wordfile.json` files.
